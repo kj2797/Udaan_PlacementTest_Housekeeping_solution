@@ -19,6 +19,7 @@ router.get('/', (req, res) => res.json({ test: 'Auth is being tested' }))
 const Person = require('../../models/Person')
 const Asset = require('../../models/Asset')
 const Task = require('../../models/Task')
+const Task = require('../../models/Worker')
 
 // @type     POST
 // @route    /api/auth/add-asset
@@ -39,9 +40,44 @@ router.post('/add-asset', (req, res) => {
                     assetDescription: req.body.description
                 })
                 
-                        newPerson
+                        newAsset
                             .save()
-                            .then(person => res.json(person))
+                            .then(asset => res.json(asset))
+                            .catch(err => console.log(err))
+                        // Store in your  DB.
+                    });
+                });
+
+            }
+        })
+        .catch(err => console.log(err))
+})
+
+
+
+// @type     POST
+// @route    /api/auth/add-task
+// @desc     route for taking details of task and saving it
+// @access   PUBLIC
+
+router.post('/add-task', (req, res) => {
+    Task.findOne({ taskName: req.body.name })
+        .then(task => {
+            if (task) {
+                return res
+                    .status(400)
+                    .json({ error: 'task already registered' })
+            } else {
+                const newTask = new Task({
+                    taskName: req.body.name,
+                    taskId: req.body.id,
+                    taskDescription: req.body.description,
+                    taskFrequency: req.body.frequency
+                })
+                
+                        newTask
+                            .save()
+                            .then(task => res.json(task))
                             .catch(err => console.log(err))
                         // Store in your  DB.
                     });
@@ -54,178 +90,67 @@ router.post('/add-asset', (req, res) => {
 
 
 // @type     POST
-// @route    /api/auth/login
-// @desc     route for login of users
+// @route    /api/auth/add-worker
+// @desc     route for taking details of worker and saving it
 // @access   PUBLIC
-router.post('/login', (req, res) => {
-    const email = req.body.email
-    const password = req.body.password
-    Person.findOne({ email })
-        .then(person => {
-            if (!person) {
-                return res.status(404).json({ emailerror: 'user not found with this email' })
-            }
-            bcrypt.compare(password, person.password)
-                .then(isCorrect => {
-                    if (isCorrect) {
-                        //res json for  
-                        //res.json({success:'User logged in successfully'})
 
-
-                        //USE PAYLOAD AND CREATE TOKEN FOR USER
-                        const payload = {
-                            id: person.id,
-                            name: person.name,
-                            email: person.email
-                        }
-                        jsonwt.sign(
-                            payload,
-                            key.secret,
-                            { expiresIn: 60 * 60 },
-                            (err, token) => {
-                                if (err) throw (err)
-                                res.json({
-                                    success: true,
-                                    token: "Bearer " + token
-                                })
-                            }
-                        )
-                    }
-                    else {
-                        res.status(400).json({ passworderror: 'password not correct' })
-                    }
+router.post('/add-worker', (req, res) => {
+    Worker.findOne({ workerId: req.body.id })
+        .then(worker => {
+            if (worker) {
+                return res
+                    .status(400)
+                    .json({ error: 'worker already registered' })
+            } else {
+                const newWorker = new Worker({
+                    workerName: req.body.name,
+                    workerId: req.body.id,
+                    workerDescription: req.body.description,
+                    skills:req.body.skills
+                    
                 })
-                .catch(err => console.log(err))
+                
+                        newWorker
+                            .save()
+                            .then(worker => res.json(worker))
+                            .catch(err => console.log(err))
+                       
+                    });
+                });
+
+            }
         })
         .catch(err => console.log(err))
 })
 
 
-// @type     GET
-// @route    /api/auth/profile
-// @desc     route for user profile
-// @access   PRIVATE
-router.get(
-    '/profile',
-    passport.authenticate('jwt', { session: false }),
-    (req, res) => {
-        //console.log(req)
-        res.json({
-            id: req.user.id,
-            name: req.user.name,
-            email: req.user.email,
-            profilepic: req.user.profilepic
-        })
-    })
-
 
 // @type     GET
-// @route    /api/auth/forgot_password
-// @desc     route for sending forgot password email
+// @route    /api/auth/assets/all
+// @desc     route for getting all assets
 // @access   PUBLIC
-router.post('/forgot_password', (req, res) => {
-    const email = req.body.email
-    Person.findOne({ email })
-        .then(person => {
-            if (!person) {
-                return res.status(404).json({ emailerror: 'user not found with this email' })
+
+router.get('/assets/all',(req,res)=>{
+    Asset.find()
+        .then(asset=>{
+            if(!asset){
+                res.status(404).json({assetnotfound:'No asset found'})
             }
-
-            // console.log(person.password)
-            //USE PAYLOAD AND CREATE TOKEN FOR USER
-            const payload = {
-                id: person.id,
-                name: person.name,
-                email: person.email,
-                password: person.password
-            }
-            jsonwt.sign(
-                payload,
-                key.secret,
-                { expiresIn: 60 * 60 },
-                (err, token) => {
-                    if (err) throw (err)
-                    var resettoken = token
-
-                    Person.update(
-                        { email: req.body.email },
-                        { $set: { resettoken: resettoken } }
-
-                    )
-                        .then(profile => res.json(profile))
-                        .catch(err => console.log('Problem in update' + err))
-                    // console.log({ success: true,token: "Bearer " + token})
-
-                    // console.log(token)
-
-
-
-
-                    var client = new Mailin("https://api.sendinblue.com/v2.0", "q0BPgVNyXKDa5Uhj");
-                    const email2 = JSON.stringify(email)
-
-                    var x = JSON.parse(email2)
-                    var key = x;
-                    var obj = {};
-                    obj[key] = key;
-                    var data1 = {}
-                    data1["to"] = obj
-                    data2 = {
-                        "from": ["developer.jodha@gmail.com", "WSS STO"],
-                        "subject": "WSS STO Password Reset"
-                    }
-                    var data = { ...data1, ...data2 };
-                    var content = "Click on this link to change password : <a href='http://localhost:3002/api/auth/reset_password/" + token + "' target='_blank'>Link</a>"
-                    data1 = {}
-                    data1["html"] = content
-                    data = { ...data, ...data1 }
-
-
-
-                    client.send_email(data).on('complete', function (data) {
-                        // console.log(data);
-                        // res.json(data)
-                        //render('thanks')
-                    });
-
-
-
-                    // newPerson
-                    //     .save()
-                    //     .then(person => res.json(person))
-                    //     .catch(err => console.log(err))
-
-
-                }
-            )
+            res.json(asset)
         })
-        .catch(err => console.log('idhar' + err))
+        .catch(err=>console.log('Error in fetching assets'+err))
 })
 
 
-// @type     POST
-// @route    /api/auth/reset_password
-// @desc     route for resetting password
-// @access   PUBLIC
 
 
-router.get('/reset_password/:token', (req, res) => {
-    // let token = req.params.token;
-    var token = "Bearer " + req.params.token
-    console.log(token)
-    Person.findOne({ resettoken: req.params.token })
-        .then(person => {
-            if (!person) {
-                res.status(404).json({ usernotfound: 'No profile found' })
-            }
 
-            console.log(person)
 
-        })
-        .catch (err=> console.log(err))
 
-    // console.log('reached my link')
-})
+
+
+
+
 
 
 

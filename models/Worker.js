@@ -12,8 +12,10 @@ const WorkerSchema=new Schema({
         required:true
     },
     skills:{
-        type:[String],
-        required:true
+        type:[String]
+    },
+    tasks:{
+        type:[String]
     },
     date:{
         type:Date,
