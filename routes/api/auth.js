@@ -1,6 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const bcrypt = require('bcryptjs')
 const jsonwt = require('jsonwebtoken')
 const passport = require('passport')
 const key = require('../../setup/myurl')
@@ -19,7 +18,7 @@ router.get('/', (req, res) => res.json({ test: 'Auth is being tested' }))
 const Person = require('../../models/Person')
 const Asset = require('../../models/Asset')
 const Task = require('../../models/Task')
-const Task = require('../../models/Worker')
+const Worker = require('../../models/Worker')
 
 // @type     POST
 // @route    /api/auth/add-asset
@@ -27,26 +26,24 @@ const Task = require('../../models/Worker')
 // @access   PUBLIC
 
 router.post('/add-asset', (req, res) => {
-    Asset.findOne({ assetName: req.body.name })
+    Asset.findOne({ assetId: req.body.id })
         .then(asset => {
             if (asset) {
                 return res
                     .status(400)
                     .json({ error: 'Asset already registered' })
-            } else {
+            } 
+            else {
                 const newAsset = new Asset({
                     assetName: req.body.name,
                     assetId: req.body.id,
                     assetDescription: req.body.description
                 })
                 
-                        newAsset
-                            .save()
-                            .then(asset => res.json(asset))
-                            .catch(err => console.log(err))
-                        // Store in your  DB.
-                    });
-                });
+                newAsset
+                    .save()
+                    .then(asset => res.json({data:asset,status:"success"}))
+                    .catch(err => console.log(err))
 
             }
         })
@@ -61,7 +58,7 @@ router.post('/add-asset', (req, res) => {
 // @access   PUBLIC
 
 router.post('/add-task', (req, res) => {
-    Task.findOne({ taskName: req.body.name })
+    Task.findOne({ taskId: req.body.id })
         .then(task => {
             if (task) {
                 return res
@@ -77,11 +74,11 @@ router.post('/add-task', (req, res) => {
                 
                         newTask
                             .save()
-                            .then(task => res.json(task))
+                            .then(task => res.json({data:task,status:"success"}))
                             .catch(err => console.log(err))
                         // Store in your  DB.
-                    });
-                });
+                //     });
+                // });
 
             }
         })
@@ -112,11 +109,11 @@ router.post('/add-worker', (req, res) => {
                 
                         newWorker
                             .save()
-                            .then(worker => res.json(worker))
+                            .then(worker => res.json({data:worker,status:"success"}))
                             .catch(err => console.log(err))
                        
-                    });
-                });
+                //     });
+                // });
 
             }
         })
@@ -144,14 +141,42 @@ router.get('/assets/all',(req,res)=>{
 
 
 
+// @type     POST
+// @route    /api/auth/allocate-task
+// @desc     route for API accepting an object
+// @access   PUBLIC
 
+router.post('/allocate-task', (req, res) => {
+    
+                const newAllocate = new Allocate({
+                    workerId: req.body.wid,
+                    assetId: req.body.aid,
+                    taskId: req.body.tid,
+                    dateCompletion:req.body.date
+                    
+                })
+                newAllocate
+                    .save()
+                    .then(allocate => res.json(allocate))
+                    .catch(err => console.log(err))
+            
+})
 
+// @type     GET
+// @route    /api/auth/get-task-for-worker/:workerId
+// @desc     route for getting current task of workers
+// @access   PUBLIC
 
-
-
-
-
-
+router.get('/get-task-for-worker/:workerId',(req,res)=>{
+    Worker.findOne({workerId:req.params.workerId})
+        .then(worker=>{
+            if(!worker){
+                res.status(404).json({workernotfound:'worker not Found'})
+            }
+            res.json(worker)
+        })
+        .catch(err=>console.log('Error in fetching user name'+err))
+})
 
 
 module.exports = router;

@@ -6,9 +6,6 @@ const ejs=require('ejs')
 
 //bring all routes
 const auth=require('./routes/api/auth')
-const profile=require('./routes/api/profile')
-const question=require('./routes/api/question')
-
 
 const app=express()
 
@@ -33,8 +30,8 @@ mongoose
 //Passport middleware    
 app.use(passport.initialize())
 
-//Config for JWT Strategy
-require('./strategies/jsonwtstrategy')(passport)
+// //Config for JWT Strategy
+// require('./strategies/jsonwtstrategy')(passport)
 
 
 //just for testing route
@@ -44,33 +41,41 @@ app.get('/',(req,res)=>{
 });
 
 
-//load register page
-app.get('/register',(req,res)=>{
-    res.render('register')
+//Asset page route
+app.get('/add-asset',(req,res)=>{
+    res.render('asset')
     //res.send('connected')
 });
 
 
-//load login page
-app.get('/login',(req,res)=>{
-    res.render('login')
+//task page route
+app.get('/add-task',(req,res)=>{
+    res.render('task')
     //res.send('connected')
 });
 
-//load forget password page
-app.get('/forgot_pass',(req,res)=>{
-    res.render('forgot_pass')
+//worker page route
+app.get('/add-worker',(req,res)=>{
+    res.render('worker')
     //res.send('connected')
 });
 
-app.post('/reset_pass',(req,res)=>{
-    res.render('reset_pass')
+//Allocate task page route
+app.get('/allocate-task',(req,res)=>{
+    res.render('allocatetask')
     //res.send('connected')
 });
+
+//Asset page route
+app.get('/get-worker-task',(req,res)=>{
+    res.render('gettask')
+    //res.send('connected')
+});
+
 
 //actual routes
 app.use('/api/auth',auth)
-app.use('/api/profile',profile)
+// app.use('/api/profile',profile)
 
 
 const port=process.env.PORT || 3002
