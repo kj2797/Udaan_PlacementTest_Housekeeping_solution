@@ -174,7 +174,7 @@ router.get('/get-task-for-worker/:workerId',(req,res)=>{
             }
             res.json(worker)
         })
-        .catch(err=>console.log('Error in fetching user name'+err))
+        .catch(err=>console.log('Error in fetching worker id'+err))
 })
 
 
