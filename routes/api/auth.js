@@ -1,7 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const jsonwt = require('jsonwebtoken')
-const passport = require('passport')
 const key = require('../../setup/myurl')
 
 
@@ -19,6 +17,7 @@ const Person = require('../../models/Person')
 const Asset = require('../../models/Asset')
 const Task = require('../../models/Task')
 const Worker = require('../../models/Worker')
+const Allocate = require('../../models/Allocate')
 
 // @type     POST
 // @route    /api/auth/add-asset
@@ -157,7 +156,7 @@ router.post('/allocate-task', (req, res) => {
                 })
                 newAllocate
                     .save()
-                    .then(allocate => res.json(allocate))
+                    .then(allocate => res.json({data:allocate,status:"success"}))
                     .catch(err => console.log(err))
             
 })

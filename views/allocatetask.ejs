@@ -9,22 +9,22 @@
 <body>
     <h1>Allocate Task</h1>
 
-    <form class="" action="/api/auth/add-worker" method="POST" enctype="application/x-www-form-urlencoded">
+    <form class="" action="/api/auth/allocate-task" method="POST" enctype="application/x-www-form-urlencoded">
         <div class="">
-            Worker Name
-            <input type="text" name="name" id="" required>
-            Worker ID
-            <input type="text" name="id" id="" required>
+            Worker ID :
+            <input type="text" name="wid" id="" required>
+            Task ID :
+            <input type="text" name="tid" id="" required>
             
-            Worker Description
-            <input type="text" name="description" id="" required>
+            Asset ID :
+            <input type="text" name="aid" id="" required>
             
-            Worker Skills
-            <input type="text" name="skills" id="" required>
+            Date To Be Completed By :
+            <input type="text" name="date" id="" required>
             
         </div>
         <br />
-        <button type="submit" class="">Add Worker</button>
+        <button type="submit" class="">Allocate Task</button>
     </form>
 
 </body>
